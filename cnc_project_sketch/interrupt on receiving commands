@@ -1,0 +1,114 @@
+interrupt on receiving commands
+
+set mode accordingly
+	3 if elseif statements
+
+carry command
+
+want the least overhead without overrun
+transmit and transmit
+
+transmit problem
+if previous transmittion isn't over, new trans won't be transmitted
+
+test, 
+upreceiving, print the received and ack message
+
+
+re
+0_State:
+	State_0:
+	State_1:
+
+
+#define ZERO_POS POS_UNKNOWN //need test
+#define STEP_SIZE_INIT $(some empirical value)
+
+int step_size=STEP_SIZE_INIT;
+
+1. Assume there's always a zero cmd, to calibrate the absolution position. Otherwise, the go_to cmd wouldn't work. Only step cmd, relative movement, would work.
+
+2. The relative changes could be "assumed", hardcoded with empirical values and verified using experiments. But if needed, it could still be calibrated.
+
+
+start->
+initialize:
+	internal initialize
+	external initialize
+	->
+execution cmd
+
+how to break a current executing cmd? break?
+
+-------------------------
+the MCU relies solely on the interrupt&callback to execute cmd
+
+(Before Activation?
+
+After activation)
+
+Before receiving a cmd
+		Check/Wait for msg
+		(Maintain the position?) if state is set to do so
+
+After receiving a cmd:
+	while executing
+		(want:
+			a. it still able to take and execute other cmd
+			b. it could be cancelled
+			c. status could be retrived)
+		receiving another cmd？
+
+			initial execution
+			(blocking)? while interrupts set
+	done executing
+
+
+Routine:
+
+figure out direction
+
+if goto is needed, zero_pos must be executed
+
+
+-----------------
+is CMD_Stack necessary
+-------------------------------------------------
+determined:
+
+
+
+
+//if "maintain position" is needed while waiting for cmd, then waiting for msg can't be a block process.
+
+msg will always be received, but not always executed.
+
+
+What if a second msg sent immediately after one, using callback, would both be executed? i.e. is execution time much much smaller then the communication clock period. It should be.
+
+Clock period is 1/115200=8.68us. Execution time equals #instruction*instruction time=#*11.9ns
+
+if execution time<clock period, then #<729.4
+
+-------------
+
+High abstraction level
+What does the mcu do?
+
+
+how could the new msg overwrite the previous executing cmd 
+
+--when a cmd is received, an interrupt is triggered
+
+when a MSG_END_CHAR is received, the received bytes will be decoded and and change the execution flag CMD_TO_EXE to 1 so the execution isn't blocking the interrupt
+
+then the cmd will be executed. When new message is received while the cmd is still executing, 
+1. if it is a compatible or quick cmd, it would just be executed
+2. if it is not compatible, it will update corresponding variables and potentially change the course of the cmd to another cmd.
+
+
+conditons of cmd change
+if cmd is changed, when new cmd is received, determine in decode_msg() in callback if the message could be executed
+
+there are two ways a cmd could be executed, one is to let
+

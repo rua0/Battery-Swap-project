@@ -1,0 +1,28 @@
+coding dictionary, cmd mapping to an ID,
+one byte and I can have 255 cmd's
+
+MSG_END_CHAR '$'
+
+first byte
+msg catagory (1 byte):
+	execution cmd (0-200):
+		fast execution (0-100):
+		slow execution (100-200):
+	status cmd, i.e. ask status (>200)
+
+
+//fast execution means that no ACK until done, otherwise the done_msg will overwrite the ACK. It just seems redundant
+
+fast execution (0-100):
+			1. set states(different number indicates state variables to set): one 1-byte argument as the state to set
+			2. change target location
+
+
+slow execution (100-200):
+
+initialzation (100-110):
+			101. initialize/calibrate
+cmd (110-200):
+			111. simple_step(int? num) no other argument
+			112. simple_step(int? num, byte dir)
+			151. goto_zero()
