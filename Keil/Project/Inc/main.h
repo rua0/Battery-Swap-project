@@ -85,6 +85,11 @@
 /* #define USE_FULL_ASSERT    1U */
 
 /* USER CODE BEGIN Private defines */
+#define TRIGGER_CMD_ID 10
+#define STEP_CMD_ID 100
+#define CMD_MAX_SIZE 30
+#define MSG_END_CHAR '$'
+#define CMD_buf_SIZE 30
 
 /* USER CODE END Private defines */
 

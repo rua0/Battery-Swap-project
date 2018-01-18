@@ -34,7 +34,7 @@
 #include "stm32f4xx_hal.h"
 #include "stm32f4xx.h"
 #include "stm32f4xx_it.h"
-
+#include "main.h"
 /* USER CODE BEGIN 0 */
 
 /* USER CODE END 0 */
@@ -143,7 +143,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
   //my_toggleled();
   //do this to indicate that this routine is entered
   //HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
-
+	int x= STEP_CMD_ID;
   if (huart->Instance == USART2)             //is current&USB uart?
   {
     //if data is not being received
@@ -151,13 +151,13 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
     {
       //****thinking abt moving this to after decode msg
       //clear_cmd_buf();
-      for (i=0;i<30;i++)//clear rx buffer
+      for (i=0;i<CMD_MAX_SIZE;i++)//clear rx buffer
       {
         CMD_buf[i]=0;                     // clear Rx_buf before receiving new data
       }
     }
     //if received data is different from the end character
-    if (Rx_data[0]!='$')                     
+    if (Rx_data[0]!=MSG_END_CHAR)                     
     {
       CMD_buf[Rx_cb_indx++]= Rx_data[0];     // store data in buffer
 
@@ -168,11 +168,11 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
       //at the end, decode received msg
       decode_msg(Rx_cb_indx);
       Rx_cb_indx= 0;//re-init index to zero when an end is detected
-      HAL_UART_Transmit(&huart2, (uint8_t *)CMD_buf, 30,99999);
+			#define RX_CB_END_DEBUG
       #ifdef RX_CB_END_DEBUG
       //debug mode: blockingly echo received bytes array 
       //when the end character detected
-      HAL_UART_Transmit(&huart2, (uint8_t *)CMD_buf, 30E,99999);
+      HAL_UART_Transmit(&huart2, (uint8_t *)CMD_buf, 30,99999);
         //buffer size could also be strlen(CMD_buf)
       #endif
       //maybe clear_cmd_buf() here
