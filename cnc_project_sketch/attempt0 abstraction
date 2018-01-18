@@ -1,0 +1,60 @@
+attempt0 abstraction
+
+void gloabal_initial();
+void trigger();
+
+void simple_step(int num,(direction,step_duration));
+void g_one_step((direction,min_step_duration));
+//move one step, blockingly;
+
+void g_step(int num,(direction,step_duration));//move $(num) step blockingly，with each step duration (in ms) 
+
+void g_step_setup();//set up functions for interrupts stuffs; right now only a place holder
+
+
+//Constant declaration:
+#define ZERO_POS POS_UNKNOWN //need test
+#define STEP_SIZE_INIT $(some empirical value)
+
+#define MSG_END_CHAR '$'
+
+//Global variable declaration:
+static int step_size=STEP_SIZE_INIT;
+
+void UART_CALLBAKC?(void){
+	
+	//end:
+	if(received_char==MSG_END_CHAR){
+		decode_msg();
+	}
+}
+
+int main(void){
+	Hardware_init();
+	//initialize and config HAL
+		//TIMER CONFIG
+			//quadrature decoder
+		//GPIO & EXTI
+			//output: dir, step
+			//input: usr_but
+			//input (interrupt): limit switch 0_pos&1_pos
+		//UART
+	
+	Global_init();
+	//initialize and config global variables
+
+	//now after initialization, either the button or the message received will make the board do something
+	//the button ir is disabled
+
+	while(1){
+		switch(mode){
+			case MODE_IDLE:
+			//wait for button
+				break:
+			case MODE_X:
+				break;
+			case MODE_Y:
+				break;
+		}
+	}
+}

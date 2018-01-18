@@ -1,0 +1,15 @@
+pin usage
+
+encoder: 2 input pin
+stepper: 2 output pin
+2 limit switches: 2 interrupt input pin
+USR LED: 1 output pin
+
+Serial communication: 2 pins
+
+----------------------
+
+using PA0&PA1 For TIM2/TIM5 AF CH1&2
+
+PA7 for limit switch 1, zero position
+PC7 for limit switch 2, one position

@@ -1,0 +1,25 @@
+--cpu=Cortex-M4.fp
+"cnc_project\stm32f4xx_it.o"
+"cnc_project\stm32f4xx_hal_msp.o"
+"cnc_project\main.o"
+"cnc_project\stm32f4xx_hal.o"
+"cnc_project\stm32f4xx_hal_pwr.o"
+"cnc_project\stm32f4xx_hal_tim_ex.o"
+"cnc_project\stm32f4xx_hal_cortex.o"
+"cnc_project\stm32f4xx_hal_flash.o"
+"cnc_project\stm32f4xx_hal_gpio.o"
+"cnc_project\stm32f4xx_hal_pwr_ex.o"
+"cnc_project\stm32f4xx_hal_flash_ramfunc.o"
+"cnc_project\stm32f4xx_hal_flash_ex.o"
+"cnc_project\stm32f4xx_hal_uart.o"
+"cnc_project\stm32f4xx_hal_tim.o"
+"cnc_project\stm32f4xx_hal_dma.o"
+"cnc_project\stm32f4xx_hal_rcc_ex.o"
+"cnc_project\stm32f4xx_hal_dma_ex.o"
+"cnc_project\stm32f4xx_hal_rcc.o"
+"cnc_project\system_stm32f4xx.o"
+"cnc_project\startup_stm32f401xe.o"
+--library_type=microlib --strict --scatter "CNC_Project\CNC_Project.sct"
+--diag_suppress=L6329 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
+--info sizes --info totals --info unused --info veneers
+--list "CNC_Project.map" -o CNC_Project\CNC_Project.axf

@@ -1,0 +1,8 @@
+20180117
+the frimware now has a working basic framework for taking in serial msg at the following format and executing corresponding command:
+[CMD_ID][Parameter*n(determined by CMD_ID)][END_CHAR]
+
+What has been tested is the trigger function that toggles a pin to high and nonblockingly resets after a preset interval. CMD_ID 10 is sent and the MSG_END_CHAR, which is '$' at the moment, and light up the on-board LED for 500ms. This will be useful as the step triggers of stepper driver.
+
+One problem that's encountered is that CR,LF are actual bytes and caused an offset in the index of the CMD_buf for receiving the next byte.
+
