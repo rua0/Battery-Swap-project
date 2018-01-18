@@ -1,5 +1,5 @@
 Dependencies for Project 'CNC_Project', Target 'CNC_Project': (DO NOT MODIFY !)
-F (../Src/stm32f4xx_it.c)(0x5A5AB9C8)(-c --cpu Cortex-M4.fp -D__EVAL -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I ../Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include --C99-I.\RTE\_CNC_Project-I"G:\Program Files\Keil_v5\ARM\PACK\ARM\CMSIS\5.2.0\CMSIS\Include"-I"G:\Program Files\Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\2.11.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include"-D__UVISION_VERSION="524" -D_RTE_ -DSTM32F401xE -DUSE_HAL_DRIVER -DSTM32F401xE --C99-o cnc_project\stm32f4xx_it.o --omf_browse cnc_project\stm32f4xx_it.crf --depend cnc_project\stm32f4xx_it.d)
+F (../Src/stm32f4xx_it.c)(0x5A5FF77B)(-c --cpu Cortex-M4.fp -D__EVAL -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I ../Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include --C99-I.\RTE\_CNC_Project-I"G:\Program Files\Keil_v5\ARM\PACK\ARM\CMSIS\5.2.0\CMSIS\Include"-I"G:\Program Files\Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\2.11.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include"-D__UVISION_VERSION="524" -D_RTE_ -DSTM32F401xE -DUSE_HAL_DRIVER -DSTM32F401xE --C99-o cnc_project\stm32f4xx_it.o --omf_browse cnc_project\stm32f4xx_it.crf --depend cnc_project\stm32f4xx_it.d)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h)(0x5A5AB828)
 I (../Inc/stm32f4xx_hal_conf.h)(0x5A5AB9C8)
 I (../Inc/main.h)(0x5A5AB9C8)
@@ -62,7 +62,7 @@ I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr_ex.h)(0x5A5AB829)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h)(0x5A5AB829)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h)(0x5A5AB829)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h)(0x5A5AB829)
-F (../Src/main.c)(0x5A5ACB73)(-c --cpu Cortex-M4.fp -D__EVAL -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I ../Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include --C99-I.\RTE\_CNC_Project-I"G:\Program Files\Keil_v5\ARM\PACK\ARM\CMSIS\5.2.0\CMSIS\Include"-I"G:\Program Files\Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\2.11.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include"-D__UVISION_VERSION="524" -D_RTE_ -DSTM32F401xE -DUSE_HAL_DRIVER -DSTM32F401xE --C99-o cnc_project\main.o --omf_browse cnc_project\main.crf --depend cnc_project\main.d)
+F (../Src/main.c)(0x5A6007DF)(-c --cpu Cortex-M4.fp -D__EVAL -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I ../Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include --C99-I.\RTE\_CNC_Project-I"G:\Program Files\Keil_v5\ARM\PACK\ARM\CMSIS\5.2.0\CMSIS\Include"-I"G:\Program Files\Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\2.11.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include"-D__UVISION_VERSION="524" -D_RTE_ -DSTM32F401xE -DUSE_HAL_DRIVER -DSTM32F401xE --C99-o cnc_project\main.o --omf_browse cnc_project\main.crf --depend cnc_project\main.d)
 I (../Inc/main.h)(0x5A5AB9C8)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h)(0x5A5AB828)
 I (../Inc/stm32f4xx_hal_conf.h)(0x5A5AB9C8)
@@ -93,6 +93,8 @@ I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr_ex.h)(0x5A5AB829)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h)(0x5A5AB829)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h)(0x5A5AB829)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h)(0x5A5AB829)
+I (G:\Program Files\Keil_v5\ARM\ARMCC\include\stdbool.h)(0x588C3A14)
+I (G:\Program Files\Keil_v5\ARM\ARMCC\include\string.h)(0x588C3A14)
 F (../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.c)(0x5A5AB829)(-c --cpu Cortex-M4.fp -D__EVAL -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I ../Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include --C99-I.\RTE\_CNC_Project-I"G:\Program Files\Keil_v5\ARM\PACK\ARM\CMSIS\5.2.0\CMSIS\Include"-I"G:\Program Files\Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\2.11.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include"-D__UVISION_VERSION="524" -D_RTE_ -DSTM32F401xE -DUSE_HAL_DRIVER -DSTM32F401xE --C99-o cnc_project\stm32f4xx_hal.o --omf_browse cnc_project\stm32f4xx_hal.crf --depend cnc_project\stm32f4xx_hal.d)
 I (../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h)(0x5A5AB828)
 I (../Inc/stm32f4xx_hal_conf.h)(0x5A5AB9C8)

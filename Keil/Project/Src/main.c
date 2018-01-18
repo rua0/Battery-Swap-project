@@ -41,7 +41,8 @@
 #include "stm32f4xx_hal.h"
 
 /* USER CODE BEGIN Includes */
-
+#include "stdbool.h"
+#include "string.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -52,7 +53,29 @@ UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
+//macro definitions
+#define STEP_CMD_ID 100
+#define CMD_MAX_SIZE 30
+#define MSG_END_CHAR '$'
+#define CMD_buf_SIZE 30
+//global variables
+  //static msg's
+    char Cmd_cflt_err_msg[]="1, CMD conflict";
+    //incompatible command error message
+    //conflict with current command
+  
+  static int Cur_CMD=0;
+	static int Step_left=0;
+    //uint8_t CMD_TO_EXE=0;
+    //Probably not needed
 
+  char CMD_buf[100];//buffer that stores the received msg/cmd
+  //used in rx cplt function
+    char Rx_buffer[100];
+    unsigned char Rx_indx, Rx_data[2], Transfer_cplt;
+  
+    char Tx_buffer[2];
+    int Rx_cb_indx=0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -65,64 +88,201 @@ static void MX_NVIC_Init(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
-void my_MX_init();
+//higher level cmds
+  void exe_cmd(void);//you can say that this is a cmd dispatcher
+//high level cmds
+  void my_MX_init(void);
+  void decode_msg(uint8_t end_char_index);
+  void my_printf(void);
+  bool isShort(int cmd_id);
+  void exe_short_cmd(void);
+  bool areCompatible(int cur_cmd_id, int new_cmd_id);
+  void update_target(int cmd_id);
+//low level controls
+  void s_step(void);
+//lowest level controls
+  void trigger(void);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
 //the argument GPIO_Pin refers to the EXTI line
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
-{
-  /* Prevent unused argument(s) compilation warning */
-  //UNUSED(GPIO_Pin);
+// void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+// {
+//   /* Prevent unused argument(s) compilation warning */
+//   //UNUSED(GPIO_Pin);
 
-  //if the EXTI line is the line for Limit Switch 0
-  //Limit Switch 0 is the only EXTI source
-  //meaning Limit Switch at 0 position is hit
-  // if (GPIO_Pin==LimitSW_0_Pin)
-  // {
-  //   /* code */
-  // }
+//   //if the EXTI line is the line for Limit Switch 0
+//   //Limit Switch 0 is the only EXTI source
+//   //meaning Limit Switch at 0 position is hit
+//   // if (GPIO_Pin==LimitSW_0_Pin)
+//   // {
+//   //   /* code */
+//   // }
 
-  //newer version written in switch statement 
-  //because there are a couple lines
-  switch(GPIO_Pin){
-    case LimitSW_0_Pin://EXTI7
-    break;
-    case LimitSW_1_Pin://EXTI6
-    break;
-    case B1_Pin://EXTI13
-      HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
-    break;
-    default:
+//   //newer version written in switch statement 
+//   //because there are a couple lines
+//   switch(GPIO_Pin){
+//     case LimitSW_0_Pin://EXTI7
+//     break;
+//     case LimitSW_1_Pin://EXTI6
+//     break;
+//     case B1_Pin://EXTI13
+//       HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+//     break;
+//     default:
+//     break;
+//   }
+// }
+#define TRIGGER_CMD_ID 10
+void exe_cmd(){
+  switch(Cur_CMD){
+    case TRIGGER_CMD_ID:
+      trigger();
+      Cur_CMD=0;//reset the current cmd
     break;
   }
 }
-char Rx_buffer[100];
-unsigned char Rx_indx, Rx_data[2], Transfer_cplt;
 
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
- {
-   uint8_t i;
-   
-//    HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
-   if (huart->Instance == USART2)             //is current uart?
-   {
-     
-       Rx_buffer[0]=1;
-       //return received byte if not the end character
-       HAL_UART_Transmit(&huart2, (uint8_t *)Rx_buffer, 5,99999);//30 is buffer size
-   }
- }
-
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
-{
-  //if timer 9 reached the target period
-  if(htim->Instance==TIM9){
-    HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin,0);
-    HAL_TIM_Base_Stop_IT(&htim9);
+void decode_msg(uint8_t end_char_index){
+  int new_cmd_id=CMD_buf[0];
+  char debug_msg[40];
+  sprintf (debug_msg, "decode_msg called %d\n",end_char_index);
+  HAL_UART_Transmit(&huart2, (uint8_t *)debug_msg, strlen(debug_msg) ,9999);//30 is buffer size
+  //if short cmd such as ask status
+  if(isShort(new_cmd_id)){
+    exe_short_cmd();
+    return;
   }
+  //not short cmd
+
+  //if there is an ongoing cmd
+  if (Cur_CMD)
+  {
+    if (!areCompatible(Cur_CMD,new_cmd_id))
+    {
+      //causing conflict
+      //print error msg
+      HAL_UART_Transmit(&huart2, (uint8_t *)Cmd_cflt_err_msg, strlen(Cmd_cflt_err_msg),9999);
+      //it really should be transmit_IT here to nonblockingly transmit, 
+        //but using blocking transmit 
+        //and to see this communicatio delay would be interesting
+      //return keep executing current cmd
+      return;
+    }else{
+      //is compatible
+      Cur_CMD=new_cmd_id;
+    }
+  }else{
+    //if no ongoing cmd
+    //??activate CMD_TO_EXE flag?
+    //is this needed
+    //CMD_TO_EXE=1;
+    Cur_CMD=new_cmd_id;
+  }
+  //if cmd is executed here, then parameter can be updated
+  update_target(Cur_CMD);
+}
+
+//high level commands
+void my_printf(){
 
 }
+
+bool isShort(int cmd_id){
+  if (cmd_id==STEP_CMD_ID||cmd_id==TRIGGER_CMD_ID)
+  {
+    return false;
+  }else{
+    return true;
+  }
+  
+}
+void exe_short_cmd(){
+
+}
+bool areCompatible(int cur_cmd_id, int new_cmd_id){
+
+  return false;
+}
+
+
+void update_target(int cmd_id){
+  switch(cmd_id){
+    case STEP_CMD_ID:
+      Step_left=CMD_buf[1];
+    break;
+  }
+}
+
+//lowest level functions
+void trigger(){
+  //toggle the pin high
+  HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin,GPIO_PIN_SET);
+  //start timer 9 to toggle the trigger low
+  HAL_TIM_Base_Start_IT(&htim9);
+}
+
+// void clear_cmd_buf(){
+//   for (uint8_t i=0;i<CMD_MAX_SIZE;i++)//clear rx buffer
+//   {
+//     CMD_buf[i]=0;                     // clear Rx_buf before receiving new data
+//   }
+// }
+
+// void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+// {
+//   uint8_t i;//max 255, or 511?
+//   //my_toggleled();
+//   //do this to indicate that this routine is entered
+//   //HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+
+//   if (huart->Instance == USART2)             //is current&USB uart?
+//   {
+//     //if data is not being received
+//     if (Rx_cb_indx == 0)                       
+//     {
+//       //****thinking abt moving this to after decode msg
+//       clear_cmd_buf();
+//       // for (i=0;i<CMD_MAX_SIZE;i++)//clear rx buffer
+//       // {
+//       //  CMD_buf[i]=0;                     // clear Rx_buf before receiving new data
+//       // }
+//     }
+//     //if received data is different from the end character
+//     if (Rx_data[0]!=MSG_END_CHAR)                     
+//     {
+//       CMD_buf[Rx_cb_indx++]= Rx_data[0];     // store data in buffer
+
+//       //HAL_UART_Transmit(&huart2, (uint8_t *)CMD_buf, CMD_buf_SIZE,99999);
+//     }
+//     else                                  // if received data = 13
+//     {
+//       //at the end, decode received msg
+//       //decode_msg(Rx_cb_indx);
+//       Rx_cb_indx= 0;//re-init index to zero when an end is detected
+//       HAL_UART_Transmit(&huart2, (uint8_t *)CMD_buf, CMD_buf_SIZE,99999);
+//       #ifdef RX_CB_END_DEBUG
+//       //debug mode: blockingly echo received bytes array 
+//       //when the end character detected
+//       HAL_UART_Transmit(&huart2, (uint8_t *)CMD_buf, CMD_buf_SIZE,99999);
+//         //buffer size could also be strlen(CMD_buf)
+//       #endif
+//       //maybe clear_cmd_buf() here
+//     }
+//     // activate receive in background
+//     HAL_UART_Receive_IT (&huart2, Rx_data, 1);     
+//   }
+// }
+
+// void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+// {
+//   //if timer 9 reached the target period
+//   if(htim->Instance==TIM9){
+//     HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin,0);
+//     HAL_TIM_Base_Stop_IT(&htim9);
+//   }
+
+// }
 /* USER CODE END 0 */
 
 int main(void)
@@ -147,16 +307,19 @@ int main(void)
   __HAL_UART_ENABLE_IT(&huart2,UART_IT_TC);//transmit complet interrupt
   //start the callback
   HAL_UART_Receive_IT (&huart2, Rx_data, 1); 
+  // HAL_UART_Receive_IT (&huart2, Rx_buffer, 1); 
   //start timer2 in encoder interface mode
 	HAL_TIM_Encoder_Start(&htim2, TIM_CHANNEL_ALL);
 /* USER CODE END 2 */
   //token 1 of i am alive by blink the led
-  HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin,1);
+  HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin,GPIO_PIN_SET);
   HAL_Delay(100);
-  HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin,0);
+  HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin,GPIO_PIN_RESET);
   //token 2 of i am alive by send a msg
   char alive_msg[]="Hello, I am alive\n";
+  //blockingly send i am alive
   HAL_UART_Transmit(&huart2, (uint8_t *)alive_msg, strlen(alive_msg),99999);
+  //non-blockingly send i am alive
   HAL_UART_Transmit_IT(&huart2, (uint8_t *)alive_msg, strlen(alive_msg));
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
@@ -165,7 +328,12 @@ int main(void)
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
-
+    if (Cur_CMD)//remember to declare the variable and function underneath
+    {
+      exe_cmd();//execute cmd based on cmd_buffer
+      //is blocking
+      //Cur_CMD=0;
+    }
   }
   /* USER CODE END 3 */
 
@@ -314,11 +482,11 @@ static void MX_TIM9_Init(void)
 
   htim9.Instance = TIM9;
   htim9.Init.Prescaler = 42000;
-  //makes each tick at 84MHz/42k=2khz
+  //makes each tick at 84MHz/42k=2khz->.5ms
   htim9.Init.CounterMode = TIM_COUNTERMODE_UP;
 //****tentative here
 //timer9 used for trigger reset
-  htim9.Init.Period = 0;
+  htim9.Init.Period = 1000;
   htim9.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   if (HAL_TIM_Base_Init(&htim9) != HAL_OK)
   {
