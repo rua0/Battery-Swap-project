@@ -54,10 +54,8 @@ UART_HandleTypeDef huart2;
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
 //macro definitions
-#define STEP_CMD_ID 100
-#define CMD_MAX_SIZE 30
-#define MSG_END_CHAR '$'
-#define CMD_buf_SIZE 30
+	//moved to /* USER CODE BEGIN Private defines */ in main.h
+
 //global variables
   //static msg's
     char Cmd_cflt_err_msg[]="1, CMD conflict";
@@ -133,7 +131,7 @@ static void MX_NVIC_Init(void);
 //     break;
 //   }
 // }
-#define TRIGGER_CMD_ID 10
+
 void exe_cmd(){
   switch(Cur_CMD){
     case TRIGGER_CMD_ID:
