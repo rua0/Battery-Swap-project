@@ -74,6 +74,10 @@ UART_HandleTypeDef huart2;
   
     char Tx_buffer[2];
     int Rx_cb_indx=0;
+
+  //CMD vairables
+    //1 means trigger is called, will be reset to 0 when timer interrupts
+    uint8_t Trigger_unfinished=1;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -97,9 +101,11 @@ static void MX_NVIC_Init(void);
   bool areCompatible(int cur_cmd_id, int new_cmd_id);
   void update_target(int cmd_id);
 //low level controls
-  void s_step(void);
+  void s_step(void);//simple step function
+  //simple step function prototype with every parameters
+  void simple_step(int num,uint8_t direction,int step_duration);
 //lowest level controls
-  void trigger(void);
+  void trigger(void);//use empirical data
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
@@ -132,25 +138,39 @@ static void MX_NVIC_Init(void);
 //   }
 // }
 
-void exe_cmd(){
-  switch(Cur_CMD){
-    case TRIGGER_CMD_ID:
-      trigger();
-      Cur_CMD=0;//reset the current cmd
-    break;
+  void exe_cmd(){
+    switch(Cur_CMD){
+      case TRIGGER_CMD_ID:
+        trigger();
+        Cur_CMD=0;//reset the current cmd
+      break;
+      case SIMPLE_STEP_ALL_CMD_ID:{
+				uint32_t step_duration=CMD_buf[3]*CMD_buf[4];
+        simple_step(CMD_buf[1],CMD_buf[2],step_duration);
+			}
+      break;
+    }
+		//finished current CMD
+		//Reset the CMD TO EXE
+		Cur_CMD=0;
+		char done_msg[]="$";
+		HAL_UART_Transmit_IT(&huart2, (uint8_t *)done_msg, 1);//
   }
-}
 
-void decode_msg(uint8_t end_char_index){
+//consider this good for now
+//this function only determines if the new CMD should be to execute
+//if so, Cur_CMD is changed to to take effect
+  void decode_msg(uint8_t end_char_index){
   int new_cmd_id=CMD_buf[0];
   char debug_msg[40];
-  sprintf (debug_msg, "decode_msg called %d\n",end_char_index);
+  sprintf (debug_msg, "line 162 decode_msg called %d\n",end_char_index);
   HAL_UART_Transmit(&huart2, (uint8_t *)debug_msg, strlen(debug_msg) ,9999);//30 is buffer size
   //if short cmd such as ask status
   if(isShort(new_cmd_id)){
     exe_short_cmd();
     return;
   }
+
   //not short cmd
 
   //if there is an ongoing cmd
@@ -179,46 +199,93 @@ void decode_msg(uint8_t end_char_index){
   }
   //if cmd is executed here, then parameter can be updated
   update_target(Cur_CMD);
-}
+  }
 
 //high level commands
-void my_printf(){
-
-}
-
-bool isShort(int cmd_id){
-  if (cmd_id==STEP_CMD_ID||cmd_id==TRIGGER_CMD_ID)
-  {
-    return false;
-  }else{
-    return true;
+  void my_printf(){
+  
   }
   
-}
-void exe_short_cmd(){
-
-}
-bool areCompatible(int cur_cmd_id, int new_cmd_id){
-
-  return false;
-}
-
-
-void update_target(int cmd_id){
-  switch(cmd_id){
-    case STEP_CMD_ID:
-      Step_left=CMD_buf[1];
-    break;
+  bool isShort(int cmd_id){
+    switch(cmd_id){
+      case STEP_CMD_ID:
+        return false;
+      case TRIGGER_CMD_ID:
+        return false;
+      //step cmd with all parameters
+      case SIMPLE_STEP_ALL_CMD_ID:
+        return false;
+      default: 
+        return false;
+    }
+    
+    
   }
-}
+  void exe_short_cmd(){
+  
+  }
+  bool areCompatible(int cur_cmd_id, int new_cmd_id){
+  
+    return false;
+  }
+  
+
+  void update_target(int cmd_id){
+    switch(cmd_id){
+      case STEP_CMD_ID:
+        Step_left=CMD_buf[1];
+      break;
+      case SIMPLE_STEP_ALL_CMD_ID:
+        Step_left=CMD_buf[1];
+      break;
+    }
+  }
+
+// #define Dir_pin_Pin GPIO_PIN_8
+// #define Dir_pin_GPIO_Port GPIOB
+
+//low level controls
+  void s_step(void){  }
+
+  //simple step function prototype with every parameters
+  void simple_step(int num,uint8_t direction,int step_duration){
+    //write direction pin correspondingly
+    HAL_GPIO_WritePin(Dir_pin_GPIO_Port, Dir_pin_Pin,direction);
+//????hope that this works
+
+    //for each step left
+      //global or local one maybe
+    //doing num for now
+    for (int i = 0; i < num; ++i)
+    {
+      // if (TIM10->CNT>50000)
+      // {
+      //   TIM10->CNT=0;
+      // }
+      // uint32_t start_time=TIM10->CNT;
+      //trigger high
+      trigger();
+			//num=0;
+			//changing num will change the number of loops
+      //I need another timer here, but what ever
+      //while() ;
+      //for now, just gonna use HAL delay
+      HAL_Delay(step_duration);
+    } 
+      
+      //wait for step duration
+  }
 
 //lowest level functions
-void trigger(){
-  //toggle the pin high
-  HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin,GPIO_PIN_SET);
-  //start timer 9 to toggle the trigger low
-  HAL_TIM_Base_Start_IT(&htim9);
-}
+
+  //step triggers, will be reset by timer9 IRQ
+  void trigger(){
+    Trigger_unfinished=0;
+    //toggle the pin high
+    HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin,GPIO_PIN_SET);
+    //start timer 9 to toggle the trigger low
+    HAL_TIM_Base_Start_IT(&htim9);
+  }
 
 // void clear_cmd_buf(){
 //   for (uint8_t i=0;i<CMD_MAX_SIZE;i++)//clear rx buffer
@@ -319,6 +386,8 @@ int main(void)
   HAL_UART_Transmit(&huart2, (uint8_t *)alive_msg, strlen(alive_msg),99999);
   //non-blockingly send i am alive
   HAL_UART_Transmit_IT(&huart2, (uint8_t *)alive_msg, strlen(alive_msg));
+  
+  
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)

@@ -6,3 +6,13 @@ What has been tested is the trigger function that toggles a pin to high and nonb
 
 One problem that's encountered is that CR,LF are actual bytes and caused an offset in the index of the CMD_buf for receiving the next byte.
 
+
+20180120
+Added simple_step(int num,uint8_t direction,int step_duration) function, and now the firmware could take in serial msg to change parameters such as num. This is a practice of adding new CMD in a later time and at least proves to work at the moment.
+
+One issue with current protocol is that the serial transfer 8bit a time, so the parameters could only be as large as 255. This could be worked around by using mutiple bytes for a single parrameter. The number of byte at the moment has been hardcoded with corresponding CMD. The benefit of making it more intelligent at the moment is trivial. So I would save it for a later time.
+
+To add another CMD, here is the list of thing to do:
+1) Write a function call, have the globals declared and test this function/CMD
+2) Give this CMD a CMD ID and define it in the main.h
+3) add the switch case for this CMD to exe_cmd() at least. If this function has any global variable, add the case to the update_target as well. If it could be executed while there are other command executing then add the case to other functions calls in the decode_msg().

@@ -110,11 +110,13 @@ void TIM1_BRK_TIM9_IRQHandler(void)
 
   /* USER CODE END TIM1_BRK_TIM9_IRQn 1 */
 }
+extern uint8_t Trigger_unfinished;
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
   //if timer 9 reached the target period
   //say timer 9 is reserved for trigger
   if(htim->Instance==TIM9){
+		Trigger_unfinished=1;
     HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin,GPIO_PIN_RESET);
     HAL_TIM_Base_Stop_IT(&htim9);
   }
@@ -137,6 +139,10 @@ extern void decode_msg(uint8_t end_char_index);
 extern char CMD_buf[100];
 extern int Rx_cb_indx;
 extern unsigned char Rx_indx, Rx_data[2], Transfer_cplt;
+
+//consider this good for now
+//the job of this function is just to take msg 
+//and just decode it to change corresponding global variables
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
   uint8_t i;//max 255, or 511?
@@ -172,7 +178,17 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
       #ifdef RX_CB_END_DEBUG
       //debug mode: blockingly echo received bytes array 
       //when the end character detected
-      HAL_UART_Transmit(&huart2, (uint8_t *)CMD_buf, 30,99999);
+			char debug_msg[40];
+			sprintf (debug_msg, "line 182 decode_msg called");
+			uint8_t ind=0;
+			while(CMD_buf[ind]!=0){
+				sprintf(debug_msg, "%s %d",debug_msg, CMD_buf[ind]);
+				ind++;
+			}
+			sprintf(debug_msg, "%s\n",debug_msg);
+			debug_msg[0]='x';
+			HAL_UART_Transmit(&huart2, (uint8_t *)debug_msg, strlen(debug_msg) ,9999);//30 is buffer size
+      //HAL_UART_Transmit(&huart2, (uint8_t *)CMD_buf, 30,99999);
         //buffer size could also be strlen(CMD_buf)
       #endif
       //maybe clear_cmd_buf() here

@@ -85,12 +85,16 @@
 /* #define USE_FULL_ASSERT    1U */
 
 /* USER CODE BEGIN Private defines */
-#define TRIGGER_CMD_ID 10
-#define STEP_CMD_ID 100
+//macro parameters
 #define CMD_MAX_SIZE 30
 #define MSG_END_CHAR '$'
 #define CMD_buf_SIZE 30
 
+//CMD ID
+#define TRIGGER_CMD_ID 10
+#define STEP_CMD_ID 100
+#define SIMPLE_STEP_VOID 50//NOT Added
+#define SIMPLE_STEP_ALL_CMD_ID 51
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

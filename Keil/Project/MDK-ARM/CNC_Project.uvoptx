@@ -191,7 +191,7 @@
         <Ww>
           <count>8</count>
           <WinNumber>1</WinNumber>
-          <ItemText>\\CNC_Project\../Src/main.c\CMD_buf</ItemText>
+          <ItemText>\\CNC_Project\../Src/main.c\CMD_buf,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>9</count>
@@ -484,7 +484,7 @@
 
   <Group>
     <GroupName>Drivers/CMSIS</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
