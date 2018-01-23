@@ -139,6 +139,12 @@ static void MX_NVIC_Init(void);
 // }
 
   void exe_cmd(){
+    #ifdef EXE_CMD_DEBUG
+    //debug mode: print the received cmd
+      char debug_msg[40];
+      sprintf (debug_msg, "CMD executing %d\n",cmd_buf[0]);
+      HAL_UART_Transmit(&huart2, (uint8_t *)debug_msg, strlen(debug_msg) ,9999);//30 is buffer size
+    #endif
     switch(Cur_CMD){
       case TRIGGER_CMD_ID:
         trigger();
