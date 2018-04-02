@@ -63,7 +63,7 @@
 #define LimitSW_0_Pin GPIO_PIN_7
 #define LimitSW_0_GPIO_Port GPIOA
 #define LimitSW_0_EXTI_IRQn EXTI9_5_IRQn
-#define Step_pin_Pin GPIO_PIN_8
+#define Step_pin_Pin GPIO_PIN_5
 #define Step_pin_GPIO_Port GPIOA
 #define TMS_Pin GPIO_PIN_13
 #define TMS_GPIO_Port GPIOA

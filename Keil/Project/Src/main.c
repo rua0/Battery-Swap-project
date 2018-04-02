@@ -153,6 +153,7 @@ static void MX_NVIC_Init(void);
       case SIMPLE_STEP_ALL_CMD_ID:{
 				uint32_t step_duration=CMD_buf[3]*CMD_buf[4];
         simple_step(CMD_buf[1],CMD_buf[2],step_duration);
+        //(int num,uint8_t direction,int step_duration) 
 			}
       break;
     }
@@ -289,6 +290,7 @@ static void MX_NVIC_Init(void);
     Trigger_unfinished=0;
     //toggle the pin high
     HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin,GPIO_PIN_SET);
+    HAL_GPIO_WritePin(Step_pin_GPIO_Port, Step_pin_Pin,GPIO_PIN_SET);
     //start timer 9 to toggle the trigger low
     HAL_TIM_Base_Start_IT(&htim9);
   }
@@ -559,7 +561,8 @@ static void MX_TIM9_Init(void)
   htim9.Init.CounterMode = TIM_COUNTERMODE_UP;
 //****tentative here
 //timer9 used for trigger reset
-  htim9.Init.Period = 1000;
+  htim9.Init.Period = 80;//40ms
+  //1000=500ms
   htim9.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   if (HAL_TIM_Base_Init(&htim9) != HAL_OK)
   {

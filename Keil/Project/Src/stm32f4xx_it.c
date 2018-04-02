@@ -118,6 +118,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   if(htim->Instance==TIM9){
 		Trigger_unfinished=1;
     HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin,GPIO_PIN_RESET);
+    //send trigger to stepper
+    HAL_GPIO_WritePin(Step_pin_GPIO_Port, Step_pin_Pin,GPIO_PIN_RESET);
     HAL_TIM_Base_Stop_IT(&htim9);
   }
 

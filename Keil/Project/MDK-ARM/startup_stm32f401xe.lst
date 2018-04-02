@@ -759,12 +759,11 @@ ARM Macro Assembler    Page 12
               00000000 
 Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M4.fp --apcs=int
 erwork --depend=cnc_project\startup_stm32f401xe.d -ocnc_project\startup_stm32f4
-01xe.o -I.\RTE\_CNC_Project -I"G:\Program Files\Keil_v5\ARM\PACK\ARM\CMSIS\5.2.
-0\CMSIS\Include" -I"G:\Program Files\Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\2.11.0
-\Drivers\CMSIS\Device\ST\STM32F4xx\Include" --predefine="__EVAL SETA 1" --prede
-fine="__MICROLIB SETA 1" --predefine="__UVISION_VERSION SETA 524" --predefine="
-_RTE_ SETA 1" --predefine="STM32F401xE SETA 1" --list=startup_stm32f401xe.lst s
-tartup_stm32f401xe.s
+01xe.o -I.\RTE\_CNC_Project -IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.1.1\CMSIS\Include
+ -IC:\Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\2.11.0\Drivers\CMSIS\Device\ST\STM32F
+4xx\Include --predefine="__EVAL SETA 1" --predefine="__MICROLIB SETA 1" --prede
+fine="__UVISION_VERSION SETA 524" --predefine="_RTE_ SETA 1" --predefine="STM32
+F401xE SETA 1" --list=startup_stm32f401xe.lst startup_stm32f401xe.s
 
 
 

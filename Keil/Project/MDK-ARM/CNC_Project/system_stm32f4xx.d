@@ -2,7 +2,7 @@ cnc_project\system_stm32f4xx.o: ../Src/system_stm32f4xx.c
 cnc_project\system_stm32f4xx.o: ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h
 cnc_project\system_stm32f4xx.o: ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f401xe.h
 cnc_project\system_stm32f4xx.o: ../Drivers/CMSIS/Include/core_cm4.h
-cnc_project\system_stm32f4xx.o: G:\Program Files\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+cnc_project\system_stm32f4xx.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
 cnc_project\system_stm32f4xx.o: ../Drivers/CMSIS/Include/core_cmInstr.h
 cnc_project\system_stm32f4xx.o: ../Drivers/CMSIS/Include/cmsis_armcc.h
 cnc_project\system_stm32f4xx.o: ../Drivers/CMSIS/Include/core_cmFunc.h
@@ -15,7 +15,7 @@ cnc_project\system_stm32f4xx.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ha
 cnc_project\system_stm32f4xx.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h
 cnc_project\system_stm32f4xx.o: ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h
 cnc_project\system_stm32f4xx.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy/stm32_hal_legacy.h
-cnc_project\system_stm32f4xx.o: G:\Program Files\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+cnc_project\system_stm32f4xx.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
 cnc_project\system_stm32f4xx.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc_ex.h
 cnc_project\system_stm32f4xx.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_gpio.h
 cnc_project\system_stm32f4xx.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_gpio_ex.h
