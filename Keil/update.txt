@@ -16,3 +16,96 @@ To add another CMD, here is the list of thing to do:
 1) Write a function call, have the globals declared and test this function/CMD
 2) Give this CMD a CMD ID and define it in the main.h
 3) add the switch case for this CMD to exe_cmd() at least. If this function has any global variable, add the case to the update_target as well. If it could be executed while there are other command executing then add the case to other functions calls in the decode_msg().
+
+20180402
+
+#define SIMPLE_STEP_ALL_CMD_ID 51
+To do a stepping cmd, 10 steps in negative direction, each step taking 1s=1000ms
+[CMD_ID]	[#steps]	[Dir]	[Step duration]
+51(op loop) 10 			1		100 	10
+(op lp step)
+51 10 1 100 10
+
+#define SIMPLE_GO_TO_CMD_ID 150
+go to a target without any parameter
+[CMD_ID]	[target step cnt]
+100			1010
+
+60 			calibration, no parameters needed
+
+
+
+Want to add calibration cmd.
+go_home, go_to_step
+
+//global to be changed in limit switch EXTI
+static int LM0HIT=0;
+static int LM1HIT=0;
+static int Cur_Step_Num=1000;//tied to increase/decrease with trigger()
+
+void calibration(){//blocking, no argument
+	//keep stepping until the switch is hit
+	//go to zero position
+	//say that when dir pin is on, the direction is negative
+	//*write high to dir pin
+	if (HAL_GPIO_ReadPin(LimitSW_0_GPIO_Port,LimitSW_0_Pin)==GPIO_PIN_SET)
+    {
+      LM0HIT=1;
+    }else{
+      Cur_Step_Num++;
+      LM0HIT=0;
+    }
+
+	while(!LM0HIT){
+		trigger();
+		HAL_Delay(50);
+
+	}
+	LM0HIT=0;
+	//set zero position
+	Cur_Step_Num=0;
+	//*write low to dir pin
+		//--forget about go back and push forward with a slower speed for now
+
+	//**comment out lines below for now
+	int total_steps=0;
+	while(!LM1HIT){
+		total_steps++;
+		trigger();
+		HAL_Delay(50);
+	}
+	LM1HIT=0;
+	//*record max number of steps
+}
+
+void go_home(){
+	go_to_step(0);
+}
+
+void go_to_step(int target_step){
+	int steps_left=0;
+	if(Cur_Step_Num<target_step){
+		//go negative, write dir pin high
+		HAL_GPIO_WritePin(Dir_pin_GPIO_Port, Dir_pin_Pin,GPIO_PIN_SET);
+		steps_left=Cur_Step_Num-target_step;
+		}
+	else{
+		HAL_GPIO_WritePin(Dir_pin_GPIO_Port, Dir_pin_Pin,GPIO_PIN_RESET);
+		steps_left=target_step-Cur_Step_Num;
+	}
+	//try later for greater or smaller than
+
+	while(steps_left>0){
+		trigger();
+		HAL_Delay(30);
+		steps_left--;
+	}
+}
+
+send "zero position switch hit"
+
+20180410
+
+go to needs to support more bytes
+
+add calibration cmd

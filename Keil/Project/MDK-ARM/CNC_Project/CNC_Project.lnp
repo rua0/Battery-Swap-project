@@ -2,6 +2,7 @@
 "cnc_project\stm32f4xx_it.o"
 "cnc_project\stm32f4xx_hal_msp.o"
 "cnc_project\main.o"
+"cnc_project\decode_func.o"
 "cnc_project\stm32f4xx_hal.o"
 "cnc_project\stm32f4xx_hal_pwr.o"
 "cnc_project\stm32f4xx_hal_tim_ex.o"

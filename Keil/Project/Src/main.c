@@ -40,14 +40,16 @@
 #include "main.h"
 #include "stm32f4xx_hal.h"
 
+#include "decode_func.h"
 /* USER CODE BEGIN Includes */
 #include "stdbool.h"
 #include "string.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
-TIM_HandleTypeDef htim2;
-TIM_HandleTypeDef htim9;
+TIM_HandleTypeDef htim2;//for quadrature decoder
+TIM_HandleTypeDef htim9;//for step reset cmd
+//should set up another timer for status update
 
 UART_HandleTypeDef huart2;
 
@@ -64,6 +66,9 @@ UART_HandleTypeDef huart2;
   
   static int Cur_CMD=0;
 	static int Step_left=0;
+  int LM0HIT=0;
+  int LM1HIT=0;
+  int Cur_Step_Num=100;//tied to increase/decrease with trigger()
     //uint8_t CMD_TO_EXE=0;
     //Probably not needed
 
@@ -106,6 +111,8 @@ static void MX_NVIC_Init(void);
   void simple_step(int num,uint8_t direction,int step_duration);
 //lowest level controls
   void trigger(void);//use empirical data
+  void calibration(void);
+  void go_to_step(int target_step);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
@@ -155,6 +162,20 @@ static void MX_NVIC_Init(void);
         simple_step(CMD_buf[1],CMD_buf[2],step_duration);
         //(int num,uint8_t direction,int step_duration) 
 			}
+      break;
+      case SIMPLE_GO_TO_CMD_ID:{
+        int target_step=CMD_buf[1];
+        int index=2;
+        while(CMD_buf[index]!='$'){
+        	target_step=target_step*10+CMD_buf[index];
+        	index++;
+        }
+
+        go_to_step(target_step);
+      }
+      break;
+      case CALIBRATION_CMD_ID:
+      calibration();
       break;
     }
 		//finished current CMD
@@ -256,6 +277,7 @@ static void MX_NVIC_Init(void);
 
   //simple step function prototype with every parameters
   void simple_step(int num,uint8_t direction,int step_duration){
+	//step_duration in ms?
     //write direction pin correspondingly
     HAL_GPIO_WritePin(Dir_pin_GPIO_Port, Dir_pin_Pin,direction);
 //????hope that this works
@@ -294,6 +316,72 @@ static void MX_NVIC_Init(void);
     //start timer 9 to toggle the trigger low
     HAL_TIM_Base_Start_IT(&htim9);
   }
+void calibration(){//blocking, no argument
+  //keep stepping until the switch is hit
+  //go to zero position
+  //say that when dir pin is on, the direction is negative
+  //*write high to dir pin
+  if (HAL_GPIO_ReadPin(LimitSW_0_GPIO_Port,LimitSW_0_Pin)==GPIO_PIN_SET)
+    {
+      LM0HIT=1;
+    }else{
+
+      Cur_Step_Num++;
+      LM0HIT=0;
+    }
+  HAL_GPIO_WritePin(Dir_pin_GPIO_Port, Dir_pin_Pin,GPIO_PIN_SET);
+  while(!LM0HIT){
+    trigger();
+    HAL_Delay(10);
+
+  }
+  LM0HIT=0;
+  //set zero position
+  Cur_Step_Num=0;
+  //*write low to dir pin
+    //--forget about go back and push forward with a slower speed for now
+
+  //**comment out lines below for now
+  // int total_steps=0;
+  // while(!LM1HIT){
+  //   total_steps++;
+  //   trigger();
+  //   HAL_Delay(50);
+  // }
+  // LM1HIT=0;
+  //*record max number of steps
+}
+
+void go_to_step(int target_step){
+  int steps_left=0;
+  if(Cur_Step_Num>target_step){
+    //go negative, write dir pin high
+    HAL_GPIO_WritePin(Dir_pin_GPIO_Port, Dir_pin_Pin,GPIO_PIN_SET);
+    steps_left=Cur_Step_Num-target_step;
+    }
+  else{
+    HAL_GPIO_WritePin(Dir_pin_GPIO_Port, Dir_pin_Pin,GPIO_PIN_RESET);
+    steps_left=target_step-Cur_Step_Num;
+  }
+  //try later for greater or smaller than
+  #define GO_TO_DEBUG
+    #ifdef GO_TO_DEBUG
+    char debug_msg[40];
+    sprintf (debug_msg, "line 354 go to, step left: %d\n",steps_left);
+    HAL_UART_Transmit(&huart2, (uint8_t *)debug_msg, strlen(debug_msg) ,9999);//30 is buffer size
+    #endif
+  while(steps_left>0){
+    trigger();
+    HAL_Delay(50);
+    steps_left-=1;
+  #define GO_TO_DEBUG
+    #ifdef GO_TO_DEBUG
+    char debug_msg[40];
+    sprintf (debug_msg, "line 354 go to, step left: %d\n",steps_left);
+    HAL_UART_Transmit(&huart2, (uint8_t *)debug_msg, strlen(debug_msg) ,9999);//30 is buffer size
+    #endif
+  }
+}
 
 // void clear_cmd_buf(){
 //   for (uint8_t i=0;i<CMD_MAX_SIZE;i++)//clear rx buffer
@@ -364,7 +452,7 @@ int main(void)
   /* USER CODE BEGIN 1 */
 
   /* USER CODE END 1 */
-
+	
   /* MCU Configuration----------------------------------------------------------*/
   my_MX_init();
   
@@ -395,7 +483,10 @@ int main(void)
   //non-blockingly send i am alive
   HAL_UART_Transmit_IT(&huart2, (uint8_t *)alive_msg, strlen(alive_msg));
   
-  
+  test();
+  HAL_Delay(1000);
+	//(int num,uint8_t direction,int step_duration)
+  simple_step(10,0,20);
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
@@ -561,7 +652,7 @@ static void MX_TIM9_Init(void)
   htim9.Init.CounterMode = TIM_COUNTERMODE_UP;
 //****tentative here
 //timer9 used for trigger reset
-  htim9.Init.Period = 80;//40ms
+  htim9.Init.Period = 2;//5ms
   //1000=500ms
   htim9.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   if (HAL_TIM_Base_Init(&htim9) != HAL_OK)
@@ -636,7 +727,7 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin : LimitSW_0_Pin */
   GPIO_InitStruct.Pin = LimitSW_0_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
   HAL_GPIO_Init(LimitSW_0_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : Step_pin_Pin */

@@ -1,0 +1,7 @@
+stepper object gives interfaces that directly controls the stepper
+
+cnc object gives interfaces that controls the movement and status of an axis
+
+decode_func give functions of related to decoding messages
+
+want a usart file that gives communication functions

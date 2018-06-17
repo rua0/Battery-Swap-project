@@ -30,5 +30,6 @@ cnc_project\main.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr_ex.h
 cnc_project\main.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h
 cnc_project\main.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h
 cnc_project\main.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h
+cnc_project\main.o: ../Inc/decode_func.h
 cnc_project\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
 cnc_project\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h

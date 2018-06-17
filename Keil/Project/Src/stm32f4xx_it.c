@@ -35,6 +35,9 @@
 #include "stm32f4xx.h"
 #include "stm32f4xx_it.h"
 #include "main.h"
+
+
+
 /* USER CODE BEGIN 0 */
 
 /* USER CODE END 0 */
@@ -111,16 +114,31 @@ void TIM1_BRK_TIM9_IRQHandler(void)
   /* USER CODE END TIM1_BRK_TIM9_IRQn 1 */
 }
 extern uint8_t Trigger_unfinished;
+extern int Cur_Step_Num;
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
   //if timer 9 reached the target period
   //say timer 9 is reserved for trigger
   if(htim->Instance==TIM9){
+    if (HAL_GPIO_ReadPin(Dir_pin_GPIO_Port, Dir_pin_Pin)==GPIO_PIN_SET)
+    {
+      Cur_Step_Num--;
+    }else{
+      Cur_Step_Num++;
+    }
+    
 		Trigger_unfinished=1;
     HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin,GPIO_PIN_RESET);
     //send trigger to stepper
     HAL_GPIO_WritePin(Step_pin_GPIO_Port, Step_pin_Pin,GPIO_PIN_RESET);
     HAL_TIM_Base_Stop_IT(&htim9);
+    
+    #define TIGGER_VAL_DEBUG
+    #ifdef TIGGER_VAL_DEBUG
+    char debug_msg[40];
+    sprintf (debug_msg, "line 129 trigger exti, Cur_Step_Num: %d\n",Cur_Step_Num);
+    HAL_UART_Transmit(&huart2, (uint8_t *)debug_msg, strlen(debug_msg) ,9999);//30 is buffer size
+    #endif
   }
 
 }
@@ -173,6 +191,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
     }
     else                                  // if received data = 13
     {
+      CMD_buf[Rx_cb_indx++]= Rx_data[0];
       //at the end, decode received msg
       decode_msg(Rx_cb_indx);
       Rx_cb_indx= 0;//re-init index to zero when an end is detected
@@ -215,6 +234,9 @@ void EXTI15_10_IRQHandler(void)
 }
 
 /* USER CODE BEGIN 1 */
+extern int LM0HIT;
+extern int LM1HIT;
+extern void calibration(void);
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
   /* Prevent unused argument(s) compilation warning */
@@ -232,12 +254,28 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
   //because there are a couple lines
   switch(GPIO_Pin){
     case LimitSW_0_Pin://EXTI7
+      LM0HIT=1;
+      #define TIGGER_VAL_DEBUG
+      #ifdef TIGGER_VAL_DEBUG
+      char debug_msg[40];
+      sprintf (debug_msg, "line 255 LM0HIT exti, %d\n", HAL_GPIO_ReadPin(LimitSW_0_GPIO_Port,LimitSW_0_Pin));
+      HAL_UART_Transmit(&huart2, (uint8_t *)debug_msg, strlen(debug_msg) ,9999);//30 is buffer size
+      #endif
     break;
     case LimitSW_1_Pin://EXTI6
+      LM1HIT=1;
     break;
-    case B1_Pin://EXTI13
+    case B1_Pin:{//EXTI13
       HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
-    break;
+      #define B1_DEBUG
+      #ifdef B1_DEBUG
+      char debug_msg[40];
+			//calibration();
+      sprintf (debug_msg, "line 268 B1 exti\n");
+      HAL_UART_Transmit(&huart2, (uint8_t *)debug_msg, strlen(debug_msg) ,9999);//30 is buffer size
+      
+      #endif
+    }break;
     default:
     break;
   }

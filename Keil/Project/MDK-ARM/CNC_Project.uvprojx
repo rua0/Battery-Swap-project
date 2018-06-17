@@ -395,6 +395,11 @@
               <FileType>1</FileType>
               <FilePath>../Src/main.c</FilePath>
             </File>
+            <File>
+              <FileName>decode_func.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\Src\decode_func.cpp</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

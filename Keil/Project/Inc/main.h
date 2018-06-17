@@ -58,11 +58,14 @@
 #define USART_TX_GPIO_Port GPIOA
 #define USART_RX_Pin GPIO_PIN_3
 #define USART_RX_GPIO_Port GPIOA
+//D13
 #define LD2_Pin GPIO_PIN_5
 #define LD2_GPIO_Port GPIOA
+//D11
 #define LimitSW_0_Pin GPIO_PIN_7
 #define LimitSW_0_GPIO_Port GPIOA
 #define LimitSW_0_EXTI_IRQn EXTI9_5_IRQn
+//D13
 #define Step_pin_Pin GPIO_PIN_5
 #define Step_pin_GPIO_Port GPIOA
 #define TMS_Pin GPIO_PIN_13
@@ -74,6 +77,7 @@
 #define LimitSW_1_Pin GPIO_PIN_6
 #define LimitSW_1_GPIO_Port GPIOB
 #define LimitSW_1_EXTI_IRQn EXTI9_5_IRQn
+//D15
 #define Dir_pin_Pin GPIO_PIN_8
 #define Dir_pin_GPIO_Port GPIOB
 
@@ -95,6 +99,10 @@
 #define STEP_CMD_ID 100
 #define SIMPLE_STEP_VOID 50//NOT Added
 #define SIMPLE_STEP_ALL_CMD_ID 51
+//goto
+#define SIMPLE_GO_TO_CMD_ID 100
+//calibration cmd
+#define CALIBRATION_CMD_ID 60
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus
